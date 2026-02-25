@@ -1,0 +1,136 @@
+cff-version: 1.2.0
+
+message: >
+  If you use atmoplex in your research, please cite it using
+  the metadata below.
+
+# ---------------------------------------------------------------------------
+# Project identity
+# ---------------------------------------------------------------------------
+
+title: "atmoplex: Atmospheric Disorder Index (ADI) Python Library"
+
+version: 1.0.0
+
+date-released: 2026-02-25
+
+abstract: >
+  atmoplex is an open-source Python library for multi-node atmospheric
+  entropy analysis using the Atmospheric Disorder Index (ADI) framework.
+  It provides a complete computational pipeline covering monthly Shannon
+  entropy estimation, thermodynamic state classification, relativistic
+  kinetic analysis (Rapidity, Lorentz time-dilation, Thermal Asymmetry),
+  seasonal OHLC volatility range analysis, Planar Maximally Filtered Graph
+  (PMFG) network construction, Ipsen-Mikhailov and Riemannian spectral
+  distance measures, Granger causality testing, and ER=EPR temporal
+  analogue identification via quantum information geometry. Data acquisition
+  is performed via the NASA POWER API. The library is designed for
+  reproducible atmospheric research across arbitrary multi-node geographic
+  study domains.
+
+license: Apache-2.0
+
+url: "https://github.com/your-username/atmoplex"
+
+repository-code: "https://github.com/your-username/atmoplex"
+
+# ---------------------------------------------------------------------------
+# Authors
+# ---------------------------------------------------------------------------
+
+authors:
+  - family-names: ""
+    given-names: ""
+    orcid: ""
+    affiliation: ""
+
+# ---------------------------------------------------------------------------
+# Keywords
+# ---------------------------------------------------------------------------
+
+keywords:
+  - atmospheric science
+  - information entropy
+  - Shannon entropy
+  - Atmospheric Disorder Index
+  - ADI
+  - thermodynamic state classification
+  - Lorentz factor
+  - relativistic kinetics
+  - thermal asymmetry
+  - PMFG
+  - Planar Maximally Filtered Graph
+  - information geometry
+  - Riemannian distance
+  - Fisher information metric
+  - Ipsen-Mikhailov distance
+  - Granger causality
+  - ER=EPR
+  - temporal analogue
+  - Von Neumann entropy
+  - NASA POWER
+  - climate network analysis
+  - Singapore
+  - multi-node observation network
+
+# ---------------------------------------------------------------------------
+# References
+# ---------------------------------------------------------------------------
+
+references:
+
+  - type: article
+    title: "A new spectral distance measure for complex network comparison"
+    authors:
+      - family-names: "Ipsen"
+        given-names: "M."
+      - family-names: "Mikhailov"
+        given-names: "A. S."
+    journal: "Physical Review E"
+    volume: 66
+    issue: 4
+    year: 2002
+    doi: "10.1103/PhysRevE.66.046109"
+    notes: >
+      Foundational reference for the Ipsen-Mikhailov spectral distance
+      used in PMFG topological regime-shift analysis.
+
+  - type: article
+    title: "Investigating the random variable nature of entropy in network analysis"
+    authors:
+      - family-names: "Mantegna"
+        given-names: "R. N."
+    journal: "The European Physical Journal B"
+    volume: 11
+    issue: 1
+    year: 1999
+    doi: "10.1007/s100510050929"
+    notes: >
+      Foundational reference for the Planar Maximally Filtered Graph (PMFG)
+      method used for network topology construction.
+
+  - type: article
+    title: >
+      Investigating causal relations by econometric models and
+      cross-spectral methods
+    authors:
+      - family-names: "Granger"
+        given-names: "C. W. J."
+    journal: "Econometrica"
+    volume: 37
+    issue: 3
+    year: 1969
+    doi: "10.2307/1912791"
+    notes: >
+      Original formulation of the Granger causality test used to assess
+      temporal precedence between System Velocity and Spatial Entropy Gradient.
+
+  - type: misc
+    title: "NASA POWER: Prediction of Worldwide Energy Resources"
+    authors:
+      - name: "NASA Langley Research Center"
+    url: "https://power.larc.nasa.gov"
+    year: 2024
+    notes: >
+      Data source for all daily meteorological and 30-year climatological
+      parameters used in the ADI framework.
