@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import time
 from io import StringIO
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -53,7 +53,7 @@ DEFAULT_COMMUNITY: str = "SB"
 
 #: Default four-node observation network for the Singapore study domain.
 #: Matches Cell 01 ``locations`` / ``location_labels``.
-SINGAPORE_NETWORK: List[Dict] = [
+SINGAPORE_NETWORK: List[Dict[str, Union[str, float]]] = [
     {"name": "Singapore",   "lat": 1.35,  "lon": 103.82},
     {"name": "Kluang",      "lat": 2.03,  "lon": 103.33},
     {"name": "Malacca",     "lat": 2.19,  "lon": 102.25},
@@ -68,12 +68,74 @@ _MONTH_ABBR_TO_INT: Dict[str, int] = {
 _NASA_DAILY_BASE   = "https://power.larc.nasa.gov/api/temporal/daily/point"
 _NASA_CLIM_BASE    = "https://power.larc.nasa.gov/api/temporal/climatology/point"
 
+# Flexible user input type for locations:
+#   - list of dicts: [{"name": "A", "lat": 1.0, "lon": 2.0}, ...]
+#   - list of tuples: [("A", 1.0, 2.0), ...]
+#   - pd.DataFrame with columns ['name', 'lat', 'lon']
+LocationInput = Union[
+    Sequence[Dict[str, Union[str, float]]],
+    Sequence[Tuple[str, float, float]],
+    pd.DataFrame,
+]
+
+
+def _normalize_locations(
+    locations: Optional[LocationInput],
+) -> List[Dict[str, Union[str, float]]]:
+    """
+    Normalize user-provided locations into a list of
+    ``{'name': str, 'lat': float, 'lon': float}`` dicts.
+
+    If ``locations`` is ``None``, the original four-node study network is used.
+    """
+    if locations is None:
+        return list(SINGAPORE_NETWORK)
+
+    if isinstance(locations, pd.DataFrame):
+        required = {"name", "lat", "lon"}
+        missing = required.difference(locations.columns)
+        if missing:
+            raise ValueError(
+                f"locations DataFrame is missing required columns: {sorted(missing)}"
+            )
+        records = locations[["name", "lat", "lon"]].to_dict(orient="records")
+    else:
+        records = list(locations)
+
+    if not records:
+        raise ValueError("locations must contain at least one location entry.")
+
+    normalized: List[Dict[str, Union[str, float]]] = []
+    for idx, loc in enumerate(records, start=1):
+        if isinstance(loc, tuple):
+            if len(loc) != 3:
+                raise ValueError(
+                    f"Location tuple #{idx} must be (name, lat, lon), got {loc!r}."
+                )
+            name, lat, lon = loc
+        elif isinstance(loc, dict):
+            missing = {"name", "lat", "lon"}.difference(loc)
+            if missing:
+                raise ValueError(
+                    f"Location dict #{idx} is missing keys: {sorted(missing)}"
+                )
+            name, lat, lon = loc["name"], loc["lat"], loc["lon"]
+        else:
+            raise TypeError(
+                "Each location must be a dict, tuple(name, lat, lon), "
+                f"or DataFrame row; got {type(loc).__name__}."
+            )
+
+        normalized.append({"name": str(name), "lat": float(lat), "lon": float(lon)})
+
+    return normalized
+
 # ---------------------------------------------------------------------------
 # 1.  Raw API fetch helpers
 # ---------------------------------------------------------------------------
 
 def fetch_daily_data(
-    locations:  List[Dict],
+    locations:  Optional[LocationInput] = None,
     start_date: str = "19950101",
     end_date:   Optional[str] = None,
     parameters: List[str] = DEFAULT_PARAMETERS,
@@ -90,9 +152,13 @@ def fetch_daily_data(
 
     Parameters
     ----------
-    locations : list of dict
-        Each dict must have keys ``'name'``, ``'lat'``, ``'lon'``.
-        Use :data:`SINGAPORE_NETWORK` for the default study domain.
+    locations : sequence[dict] | sequence[tuple] | pd.DataFrame, optional
+        User-defined locations. Any number of locations is supported.
+        Accepted formats:
+          1) ``[{"name": "A", "lat": 1.0, "lon": 2.0}, ...]``
+          2) ``[("A", 1.0, 2.0), ...]``
+          3) DataFrame with columns ``['name', 'lat', 'lon']``.
+        If omitted, defaults to :data:`SINGAPORE_NETWORK`.
     start_date : str
         Start date as ``'YYYYMMDD'`` string.  Default ``'19950101'``.
     end_date : str, optional
@@ -117,6 +183,7 @@ def fetch_daily_data(
         from datetime import date
         end_date = date.today().strftime("%Y%m%d")
 
+    locations = _normalize_locations(locations)
     param_str = ",".join(parameters)
     results: Dict[str, pd.DataFrame] = {}
 
@@ -173,7 +240,7 @@ def fetch_daily_data(
 
 
 def fetch_climatology_data(
-    locations:  List[Dict],
+    locations:  Optional[LocationInput] = None,
     parameters: List[str] = DEFAULT_PARAMETERS,
     community:  str = DEFAULT_COMMUNITY,
     save_csv:   bool = False,
@@ -192,6 +259,7 @@ def fetch_climatology_data(
     dict of str → pd.DataFrame
         Raw climatology DataFrames keyed by location name.
     """
+    locations = _normalize_locations(locations)
     param_str = ",".join(parameters)
     results: Dict[str, pd.DataFrame] = {}
 
