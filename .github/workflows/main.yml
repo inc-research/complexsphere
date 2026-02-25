@@ -1,0 +1,101 @@
+# .github/workflows/publish.yaml
+#
+# Publishes atmoplex to PyPI automatically when a new release is tagged
+# on the main branch (e.g. v1.0.0).
+#
+# Uses PyPI Trusted Publishing (OIDC) — no API token or password required.
+# Setup instructions:
+#   1. Go to pypi.org → Your Projects → atmoplex → Publishing
+#   2. Add a new Trusted Publisher with these values:
+#        Owner:            your-github-username
+#        Repository:       atmoplex
+#        Workflow name:    publish.yaml
+#        Environment name: pypi
+
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]   # Triggers when you publish a Release on GitHub
+
+jobs:
+
+  # ---------------------------------------------------------------------------
+  # Job 1: Build the source distribution and wheel
+  # ---------------------------------------------------------------------------
+  build:
+    name: Build distribution
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build source distribution and wheel
+        run: python -m build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  # ---------------------------------------------------------------------------
+  # Job 2: Publish to TestPyPI (staging check before live publish)
+  # ---------------------------------------------------------------------------
+  publish-testpypi:
+    name: Publish to TestPyPI
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/complexsphere
+
+    permissions:
+      id-token: write   # Required for Trusted Publishing (OIDC)
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  # ---------------------------------------------------------------------------
+  # Job 3: Publish to live PyPI (runs after TestPyPI succeeds)
+  # ---------------------------------------------------------------------------
+  publish-pypi:
+    name: Publish to PyPI
+    needs: publish-testpypi
+    runs-on: ubuntu-latest
+
+    environment:
+      name: pypi
+      url: https://pypi.org/p/complexsphere
+
+    permissions:
+      id-token: write   # Required for Trusted Publishing (OIDC)
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
