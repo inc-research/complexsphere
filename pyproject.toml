@@ -1,0 +1,89 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends.legacy:build"
+
+# ---------------------------------------------------------------------------
+# Project metadata  (PEP 621)
+# ---------------------------------------------------------------------------
+[project.urls]
+Repository = "https://github.com/inc-research/complexsphere"
+
+[project]
+name            = "complexsphere"
+version         = "1.0.0"
+description     = "Atmospheric Disorder Index (ADI) — multi-node entropy, relativistic kinetics, PMFG topology, and ER=EPR temporal analogue analysis."
+readme          = "README.md"
+license         = { text = "Apache-2.0" }
+requires-python = ">=3.8"
+
+keywords = [
+    "atmospheric science",
+    "entropy",
+    "information geometry",
+    "climate analysis",
+    "PMFG",
+    "Shannon entropy",
+    "Riemannian distance",
+    "Granger causality",
+    "temporal analogue",
+]
+
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Atmospheric Science",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
+]
+
+dependencies = [
+    "numpy>=1.21",
+    "pandas>=1.3",
+    "scipy>=1.7",
+    "requests>=2.25",
+    "networkx>=2.6",
+    "statsmodels>=0.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "jupyter",
+    "matplotlib>=3.4",
+    "black",
+    "ruff",
+]
+
+# ---------------------------------------------------------------------------
+# Package discovery  (src layout)
+# ---------------------------------------------------------------------------
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
+
+# ---------------------------------------------------------------------------
+# Optional tool configuration
+# ---------------------------------------------------------------------------
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.black]
+line-length    = 100
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.ruff]
+line-length = 100
+select      = ["E", "F", "W"]
+ignore      = ["E501"]
